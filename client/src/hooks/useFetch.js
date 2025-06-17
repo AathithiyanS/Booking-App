@@ -1,40 +1,44 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import axios from "axios";
 
-const useFetch = (url) => {
+// ✅ Directly set your backend base URL here
+const API_BASE = "https://booking-app-backend-bw17.onrender.com/api";
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+const useFetch = (endpoint) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-    useEffect(() => {
+  const fullUrl = `${API_BASE}${endpoint}`;
 
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const res = await axios.get(url);
-                setData(res.data);
-                console.log("Fetched Data:", res.data);
-            } catch (err) {
-                setError(err);
-            }
-            setLoading(false);
-        }
-        fetchData();
-    }, [url]);
-
-    const reFetch = async () => {
-        setLoading(true);
-        try {
-            const res = await axios.get(url);
-            setData(res.data);
-        } catch (err) {
-            setError(err);
-        }
-        setLoading(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(fullUrl);
+        setData(res.data);
+        console.log("Fetched Data:", res.data);
+      } catch (err) {
+        setError(err);
+      }
+      setLoading(false);
     };
 
-    return { data, loading, error, reFetch };
+    fetchData();
+  }, [fullUrl]);
+
+  const reFetch = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(fullUrl);
+      setData(res.data);
+    } catch (err) {
+      setError(err);
+    }
+    setLoading(false);
+  };
+
+  return { data, loading, error, reFetch };
 };
 
 export default useFetch;
