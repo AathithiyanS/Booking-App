@@ -1,59 +1,69 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import authRoute from "./routes/auth.js";
-import usersRoute from "./routes/users.js";
-import hotelsRoute from "./routes/hotels.js";
-import roomsRoute from "./routes/rooms.js";
+import authRoute from './routes/auth.js';
+import usersRoute from './routes/users.js';
+import hotelsRoute from './routes/hotels.js';
+import roomsRoute from './routes/rooms.js';
 import cookieParser from 'cookie-parser';
-import cors from "cors";
+import cors from 'cors';
 
-const app = express();
-const port= process.env.PORT ||3000;
+// Load environment variables
 dotenv.config();
 
+const app = express();
+const port = process.env.PORT || 3000;
+
+// ✅ Connect to MongoDB
 const connectDB = async () => {
-    try {
-    //    await mongoose.connect(process.env.MONGO_DB);
+  try {
     await mongoose.connect(process.env.MONGO_DB);
-        console.log("Connected to database.");
-    } catch (error) {
-        console.log(error);
-    }
-}
+    console.log('Connected to MongoDB.');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+  }
+};
 
-mongoose.connection.on("disconnected", () => {
-    console.log("mongoDB disconnected!");
-    setTimeout(connectDB,port);
-})
+// ✅ Reconnect if DB disconnects
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected!');
+  setTimeout(connectDB, 5000);
+});
 
-app.get("/api",(req,res)=>{
-    res.send("Hello,this is the first request");
-})
+// ✅ Middleware
+app.use(cors({
+  origin: 'https://booking-app-frontend-8bnl.onrender.com', // change if frontend URL is different
+  credentials: true,
+}));
 
-app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 
-app.use("/api/auth",authRoute);
-app.use("/api/users",usersRoute);
-app.use("/api/hotels",hotelsRoute);
-app.use("/api/rooms",roomsRoute);
+// ✅ Routes
+app.use('/api/auth', authRoute);
+app.use('/api/users', usersRoute);
+app.use('/api/hotels', hotelsRoute);
+app.use('/api/rooms', roomsRoute);
 
-//Error handling middleware 
-
-app.use((err,req,res,next)=>{
-     const errorStatus=err.status||500;
-     const errorMessage=err.message||"Something went wrong!";
-     return res.status(errorStatus).json({
-         success:false,
-         status:errorStatus,
-         message:errorMessage,
-         stack:err.stack,
-     })
+// ✅ Basic test route
+app.get('/api', (req, res) => {
+  res.send('Hello, backend is working!');
 });
 
-app.listen(7000, () => {
-    connectDB();
-    console.log("Server is running.");
-})
+// ✅ Global Error Handling
+app.use((err, req, res, next) => {
+  const errorStatus = err.status || 500;
+  const errorMessage = err.message || 'Something went wrong!';
+  return res.status(errorStatus).json({
+    success: false,
+    status: errorStatus,
+    message: errorMessage,
+    stack: err.stack,
+  });
+});
+
+// ✅ Start Server
+app.listen(port, () => {
+  connectDB();
+  console.log(`Server is running on port ${port}`);
+});
