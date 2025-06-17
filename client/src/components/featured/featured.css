@@ -1,0 +1,22 @@
+.featured{
+    width: 100%;
+    margin:0 10%;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+.featuredImg{
+    width: 30vw;
+    height: 100%;
+}.featuredItem{
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 250px;
+}
+.featuredTitles{
+    color: white;
+    position: absolute;
+    bottom: 5px;
+    left: 20px;
+}
